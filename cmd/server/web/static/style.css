@@ -1,0 +1,524 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg: #0f0f1a;
+    --surface: #1a1a2e;
+    --surface2: #22223a;
+    --border: #2a2a44;
+    --text: #e0e0e0;
+    --text-dim: #888;
+    --accent: #4fc3f7;
+    --accent-dark: #0288d1;
+    --green: #4caf50;
+    --orange: #ff9800;
+    --radius: 8px;
+    --max-width: 1100px;
+}
+
+body {
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+        Arial, sans-serif;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+}
+a:hover {
+    color: #81d4fa;
+    text-decoration: underline;
+}
+
+.container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ── Header ── */
+header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.logo {
+    color: var(--accent);
+    font-size: 1.25rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.logo:hover {
+    text-decoration: none;
+    color: #81d4fa;
+}
+.search-form {
+    flex: 1;
+    max-width: 700px;
+    display: flex;
+    gap: 8px;
+}
+.search-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.search-input:focus {
+    border-color: var(--accent);
+}
+.search-select {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+    min-width: 160px;
+}
+.search-select:focus {
+    border-color: var(--accent);
+}
+.search-select option {
+    background: var(--surface);
+    color: var(--text);
+}
+.btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition:
+        background 0.15s,
+        transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.btn:active {
+    transform: scale(0.97);
+}
+.btn-primary {
+    background: var(--accent-dark);
+    color: #fff;
+}
+.btn-primary:hover {
+    background: #0277bd;
+    text-decoration: none;
+}
+.btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+.btn-secondary:hover {
+    background: var(--border);
+    text-decoration: none;
+}
+.btn-sm {
+    padding: 5px 12px;
+    font-size: 0.8rem;
+}
+
+/* ── Hero ── */
+.hero {
+    text-align: center;
+    padding: 60px 20px 40px;
+}
+.hero h1 {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+}
+.hero-compact {
+    text-align: center;
+    padding: 30px 20px 20px;
+}
+.hero-compact h1 {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+}
+.subtitle {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+}
+.hero-search {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+}
+
+/* ── Torrent List ── */
+.recent {
+    margin-top: 24px;
+}
+.recent h2 {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    color: var(--text-dim);
+}
+.torrent-list {
+    list-style: none;
+}
+.torrent-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px 18px;
+    margin-bottom: 6px;
+    border-radius: var(--radius);
+    transition: border-color 0.15s;
+}
+.torrent-item:hover {
+    border-color: var(--accent);
+}
+.torrent-title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text);
+    display: block;
+    margin-bottom: 6px;
+}
+.torrent-title:hover {
+    color: var(--accent);
+    text-decoration: none;
+}
+.torrent-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.82rem;
+}
+.tag {
+    background: rgba(79, 195, 247, 0.12);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.78rem;
+}
+.cat-tag {
+    background: rgba(76, 175, 80, 0.15);
+    color: #66bb6a;
+    font-weight: 600;
+}
+.size {
+    color: var(--green);
+    font-weight: 500;
+}
+.hash {
+    color: var(--text-dim);
+    background: var(--surface2);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.72rem;
+}
+
+/* ── Search page ── */
+.search-page {
+    padding: 20px 0;
+}
+.search-header h1 {
+    font-size: 1.3rem;
+}
+.search-header h1 strong {
+    color: var(--accent);
+}
+.result-count {
+    color: var(--text-dim);
+    margin: 4px 0 12px;
+    font-size: 0.9rem;
+}
+.sort-options {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+}
+.sort-options a.active {
+    color: var(--accent);
+    font-weight: 600;
+}
+.no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 20px 0;
+}
+.page-info {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+}
+
+/* ── Torrent Detail ── */
+.torrent-detail {
+    padding: 24px 0;
+}
+.torrent-title-h1 {
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+    line-height: 1.35;
+}
+
+.torrent-info {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 18px 20px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+}
+.info-grid {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 8px 14px;
+}
+.info-label {
+    color: var(--text-dim);
+    font-weight: 500;
+    font-size: 0.88rem;
+    padding-top: 2px;
+}
+.info-value code {
+    background: var(--bg);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+}
+.magnet-link {
+    display: inline-block;
+    margin-right: 10px;
+    font-weight: 500;
+}
+
+/* ── Content ── */
+.torrent-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+}
+.torrent-content h2 {
+    font-size: 1.05rem;
+    margin-bottom: 12px;
+}
+.content-rendered {
+    line-height: 1.7;
+    font-size: 0.92rem;
+    overflow-wrap: break-word;
+}
+.content-rendered img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin: 8px 0;
+}
+.content-rendered blockquote {
+    background: var(--bg);
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    margin: 10px 0;
+    border-radius: 0 4px 4px 0;
+}
+.content-rendered pre {
+    background: #111;
+    color: #d4d4d4;
+    padding: 14px;
+    border-radius: var(--radius);
+    overflow-x: auto;
+    font-size: 0.85rem;
+    margin: 10px 0;
+}
+.content-rendered code {
+    background: var(--bg);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.84rem;
+}
+.content-rendered pre code {
+    background: none;
+    padding: 0;
+}
+
+details.spoiler {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin: 10px 0;
+}
+details.spoiler summary {
+    padding: 10px 14px;
+    cursor: pointer;
+    font-weight: 500;
+    user-select: none;
+}
+details.spoiler summary:hover {
+    background: var(--surface2);
+}
+.spoiler-content {
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+}
+
+/* ── BBCode elements ── */
+.bb-hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 16px 0;
+}
+.bb-indent {
+    margin-left: 24px;
+}
+.bb-box {
+    padding: 12px;
+    border-radius: 6px;
+    margin: 8px 0;
+}
+.bb-oneline {
+    white-space: nowrap;
+}
+.bb-list {
+    padding-left: 24px;
+    margin: 8px 0;
+}
+.bb-list li {
+    margin-bottom: 4px;
+}
+.bb-img {
+    border-radius: 4px;
+    margin: 8px 0;
+}
+.bb-img[src*="thumb"] {
+    max-height: 200px;
+    cursor: pointer;
+}
+.bb-size {
+    display: inline;
+}
+.quote-author {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+}
+.quote-content {
+    font-style: italic;
+}
+
+/* ── Files ── */
+.torrent-files {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 18px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+}
+.torrent-files h2 {
+    font-size: 1.05rem;
+    margin-bottom: 10px;
+}
+.file-list {
+    list-style: none;
+    max-height: 360px;
+    overflow-y: auto;
+}
+.file-item {
+    padding: 5px 8px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 0.82rem;
+    border-bottom: 1px solid var(--border);
+}
+.file-item:last-child {
+    border-bottom: none;
+}
+.file-item.dir {
+    background: var(--surface2);
+    font-weight: 500;
+}
+.file-path {
+    margin-left: 6px;
+}
+.file-size {
+    color: var(--green);
+    margin-left: auto;
+    float: right;
+}
+
+/* ── Footer ── */
+footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 12px 0;
+    margin-top: auto;
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+}
+footer p {
+    margin: 0;
+    opacity: 0.7;
+}
+
+.breadcrumb-arrow {
+    color: var(--text-dim);
+    margin: 0 6px;
+    font-size: 0.75rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .search-form {
+        max-width: 100%;
+        width: 100%;
+    }
+    .hero h1 {
+        font-size: 1.5rem;
+    }
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    .info-label {
+        margin-top: 6px;
+    }
+}

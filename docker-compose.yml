@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: rutracker-postgres
+    environment:
+      POSTGRES_USER: rutracker
+      POSTGRES_PASSWORD: rutracker
+      POSTGRES_DB: rutracker
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rutracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrator:
+    build: .
+    container_name: rutracker-migrator
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: rutracker
+      DB_PASSWORD: rutracker
+      DB_NAME: rutracker
+      DB_SSLMODE: disable
+    volumes:
+      - ./rutracker-20260329.xml.xz:/app/archive.xml.xz:ro
+    command: ["/app/migrator", "-file=/app/archive.xml.xz", "-migrate=true"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  server:
+    build: .
+    container_name: rutracker-server
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: rutracker
+      DB_PASSWORD: rutracker
+      DB_NAME: rutracker
+      DB_SSLMODE: disable
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:

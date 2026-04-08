@@ -1,0 +1,142 @@
+{{define "page-search"}}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск: {{.Query}} — RuTracker</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <a href="/" class="logo">🔍 RuTracker Архив</a>
+            <form action="/search" method="GET" class="search-form">
+                <input type="text" name="q" value="{{.Query}}" placeholder="Поиск..." class="search-input">
+                <select name="cat" id="cat-select" class="search-select" onchange="onCategoryChange()">
+                    <option value="">Все категории</option>
+                    {{range .Categories}}
+                    <option value="{{.}}" {{if eq . $.Cat}}selected{{end}}>{{.}}</option>
+                    {{end}}
+                </select>
+                <select name="sub" id="sub-select" class="search-select" onchange="onSubcategoryChange()">
+                    <option value="">Все подкатегории</option>
+                    {{range .Subcats}}
+                    <option value="{{.}}" {{if eq . $.Subcat}}selected{{end}}>{{.}}</option>
+                    {{end}}
+                </select>
+                <select name="sub2" id="sub2-select" class="search-select">
+                    <option value="">Все</option>
+                    {{range .SubSubcats}}
+                    <option value="{{.}}" {{if eq . $.SubSubcat}}selected{{end}}>{{.}}</option>
+                    {{end}}
+                </select>
+                <button type="submit" class="btn btn-primary">Найти</button>
+            </form>
+        </div>
+    </header>
+    <main class="container">
+        <div class="search-page">
+            <div class="search-header">
+                {{if .Query}}
+                <h1>Результаты поиска по запросу «<strong>{{.Query}}</strong>»</h1>
+                {{else}}
+                <h1>Результаты поиска</h1>
+                {{end}}
+                {{if .Cat}}
+                <p class="result-count">
+                    <span class="tag cat-tag">{{.Cat}}</span>
+                    {{if .Subcat}}
+                    <span class="breadcrumb-arrow">→</span>
+                    <span class="tag">{{.Subcat}}</span>
+                    {{end}}
+                    {{if .SubSubcat}}
+                    <span class="breadcrumb-arrow">→</span>
+                    <span class="tag">{{.SubSubcat}}</span>
+                    {{end}}
+                </p>
+                {{end}}
+                <div class="sort-options">
+                    <span>Сортировка:</span>
+                    <a href="?q={{.Query}}&cat={{.Cat}}&sub={{.Subcat}}&sub2={{.SubSubcat}}&sort=date&p={{.Offset}}" class="{{if eq .Sort "date"}}active{{end}}">По дате</a>
+                    <a href="?q={{.Query}}&cat={{.Cat}}&sub={{.Subcat}}&sub2={{.SubSubcat}}&sort=size&p={{.Offset}}" class="{{if eq .Sort "size"}}active{{end}}">По размеру</a>
+                </div>
+            </div>
+            {{if eq (len .Results) 0}}
+                <div class="no-results"><p>Ничего не найдено. Попробуйте другие запросы.</p></div>
+            {{else}}
+                <ul class="torrent-list">
+                    {{range .Results}}
+                    <li class="torrent-item">
+                        <a href="/torrent/{{.ID}}" class="torrent-title">{{.Title}}</a>
+                        <div class="torrent-meta">
+                            {{if .Category}}<span class="tag cat-tag">{{.Category}}</span>{{end}}
+                            {{if .ForumName}}<span class="tag">{{.ForumName}}</span>{{end}}
+                            <span class="size">{{.Size | formatSize}}</span>
+                            {{if .Hash}}<code class="hash">{{.Hash | shortHash}}</code>{{end}}
+                        </div>
+                    </li>
+                    {{end}}
+                </ul>
+                <div class="pagination">
+                    {{if gt .Offset 0}}
+                        <a href="?q={{.Query}}&cat={{.Cat}}&sub={{.Subcat}}&sub2={{.SubSubcat}}&p={{sub .Offset .Limit}}&sort={{.Sort}}" class="btn btn-secondary">← Назад</a>
+                    {{end}}
+                    <span class="page-info">Страница {{add 1 (div .Offset .Limit)}}</span>
+                    {{if .HasMore}}
+                        <a href="?q={{.Query}}&cat={{.Cat}}&sub={{.Subcat}}&sub2={{.SubSubcat}}&p={{add .Offset .Limit}}&sort={{.Sort}}" class="btn btn-secondary">Далее →</a>
+                    {{end}}
+                </div>
+            {{end}}
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>Всего в архиве: ~{{.TotalCount}} раздач</p>
+        </div>
+    </footer>
+    <script>
+    function onCategoryChange() {
+        const cat = document.getElementById('cat-select').value;
+        const subSelect = document.getElementById('sub-select');
+        const sub2Select = document.getElementById('sub2-select');
+        subSelect.innerHTML = '<option value="">Все подкатегории</option>';
+        sub2Select.innerHTML = '<option value="">Все</option>';
+        if (!cat) return;
+        subSelect.innerHTML = '<option value="">Загрузка...</option>';
+        fetch('/api/subcategories?cat=' + encodeURIComponent(cat))
+            .then(r => r.json())
+            .then(subs => {
+                subSelect.innerHTML = '<option value="">Все подкатегории</option>';
+                subs.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s; opt.textContent = s;
+                    subSelect.appendChild(opt);
+                });
+            })
+            .catch(() => { subSelect.innerHTML = '<option value="">Все подкатегории</option>'; });
+    }
+
+    function onSubcategoryChange() {
+        const cat = document.getElementById('cat-select').value;
+        const sub = document.getElementById('sub-select').value;
+        const sub2Select = document.getElementById('sub2-select');
+        sub2Select.innerHTML = '<option value="">Все</option>';
+        if (!cat || !sub) return;
+        sub2Select.innerHTML = '<option value="">Загрузка...</option>';
+        fetch('/api/subsubcategories?cat=' + encodeURIComponent(cat) + '&sub=' + encodeURIComponent(sub))
+            .then(r => r.json())
+            .then(subs => {
+                sub2Select.innerHTML = '<option value="">Все</option>';
+                subs.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s; opt.textContent = s;
+                    sub2Select.appendChild(opt);
+                });
+            })
+            .catch(() => { sub2Select.innerHTML = '<option value="">Все</option>'; });
+    }
+    </script>
+</body>
+</html>
+{{end}}

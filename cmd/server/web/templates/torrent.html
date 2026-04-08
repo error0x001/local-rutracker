@@ -1,0 +1,196 @@
+{{define "page-torrent"}}
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{.TorrentTitle}} — RuTracker</title>
+        <link rel="stylesheet" href="/static/style.css" />
+    </head>
+    <body>
+        <header>
+            <div class="container header-content">
+                <a href="/" class="logo">🔍 RuTracker Архив</a>
+                <form action="/search" method="GET" class="search-form">
+                    <input
+                        type="text"
+                        name="q"
+                        placeholder="Поиск..."
+                        class="search-input"
+                    />
+                    <select
+                        name="cat"
+                        id="cat-select"
+                        class="search-select"
+                        onchange="onCategoryChange()"
+                    >
+                        <option value="">Все категории</option>
+                        {{range .Categories}}
+                        <option value="{{.}}">{{.}}</option>
+                        {{end}}
+                    </select>
+                    <select
+                        name="sub"
+                        id="sub-select"
+                        class="search-select"
+                        onchange="onSubcategoryChange()"
+                    >
+                        <option value="">Все подкатегории</option>
+                    </select>
+                    <select name="sub2" id="sub2-select" class="search-select">
+                        <option value="">Все</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Найти</button>
+                </form>
+            </div>
+        </header>
+        <main class="container">
+            <div class="torrent-detail">
+                <h1 class="torrent-title-h1">{{.TorrentTitle}}</h1>
+                <div class="torrent-info">
+                    <div class="info-grid">
+                        <div class="info-label">Категория:</div>
+                        <div class="info-value">
+                            {{if .Category}}<a
+                                href="/search?cat={{.Category}}&q="
+                                class="tag cat-tag"
+                                >{{.Category}}</a
+                            >{{else}}—{{end}}
+                        </div>
+
+                        <div class="info-label">Форум:</div>
+                        <div class="info-value">
+                            {{if .ForumName}}<span class="tag"
+                                >{{.ForumName}}</span
+                            >{{else}}—{{end}}
+                        </div>
+
+                        <div class="info-label">Размер:</div>
+                        <div class="info-value">{{.Size | formatSize}}</div>
+
+                        <div class="info-label">Дата:</div>
+                        <div class="info-value">
+                            {{if
+                            .RegisteredAt}}{{.RegisteredAt}}{{else}}—{{end}}
+                        </div>
+
+                        <div class="info-label">Хеш:</div>
+                        <div class="info-value"><code>{{.Hash}}</code></div>
+
+                        <div class="info-label">Магнет:</div>
+                        <div class="info-value">
+                            <a
+                                href="{{.MagnetLink}}"
+                                class="magnet-link"
+                                id="magnet-link"
+                                >🧲 Магнет-ссылка</a
+                            >
+                            <button
+                                onclick="copyMagnet()"
+                                class="btn btn-sm btn-secondary"
+                            >
+                                📋 Копировать
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {{if .Content}}
+                <div class="torrent-content">
+                    <h2>Описание</h2>
+                    <div class="content-rendered">{{.Content}}</div>
+                </div>
+                {{end}} {{if .HasFiles}}
+                <div class="torrent-files">
+                    <h2>Файлы ({{.FileCount}})</h2>
+                    <ul class="file-list">
+                        {{range .Files}}
+                        <li
+                            class="file-item {{if .IsDir}}dir{{else}}file{{end}}"
+                        >
+                            {{if .IsDir}}📁{{else}}📄{{end}}
+                            <span class="file-path">{{.Path}}</span>
+                            {{if gt .Size 0}}<span class="file-size"
+                                >{{.Size | formatSize}}</span
+                            >{{end}}
+                        </li>
+                        {{end}}
+                    </ul>
+                </div>
+                {{end}}
+            </div>
+        </main>
+        <footer>
+            <div class="container">
+                <p>RuTracker Архив</p>
+            </div>
+        </footer>
+        <script>
+            function copyMagnet() {
+                const magnet = document.getElementById("magnet-link").href;
+                navigator.clipboard.writeText(magnet).then(() => {
+                    const btn = document.querySelector(
+                        'button[onclick="copyMagnet()"]',
+                    );
+                    btn.textContent = "✅ Скопировано!";
+                    setTimeout(() => (btn.textContent = "📋 Копировать"), 2000);
+                });
+            }
+
+            function onCategoryChange() {
+                const cat = document.getElementById("cat-select").value;
+                const subSelect = document.getElementById("sub-select");
+                const sub2Select = document.getElementById("sub2-select");
+                subSelect.innerHTML =
+                    '<option value="">Все подкатегории</option>';
+                sub2Select.innerHTML = '<option value="">Все</option>';
+                if (!cat) return;
+                subSelect.innerHTML = '<option value="">Загрузка...</option>';
+                fetch("/api/subcategories?cat=" + encodeURIComponent(cat))
+                    .then((r) => r.json())
+                    .then((subs) => {
+                        subSelect.innerHTML =
+                            '<option value="">Все подкатегории</option>';
+                        subs.forEach((s) => {
+                            const opt = document.createElement("option");
+                            opt.value = s;
+                            opt.textContent = s;
+                            subSelect.appendChild(opt);
+                        });
+                    })
+                    .catch(() => {
+                        subSelect.innerHTML =
+                            '<option value="">Все подкатегории</option>';
+                    });
+            }
+
+            function onSubcategoryChange() {
+                const cat = document.getElementById("cat-select").value;
+                const sub = document.getElementById("sub-select").value;
+                const sub2Select = document.getElementById("sub2-select");
+                sub2Select.innerHTML = '<option value="">Все</option>';
+                if (!cat || !sub) return;
+                sub2Select.innerHTML = '<option value="">Загрузка...</option>';
+                fetch(
+                    "/api/subsubcategories?cat=" +
+                        encodeURIComponent(cat) +
+                        "&sub=" +
+                        encodeURIComponent(sub),
+                )
+                    .then((r) => r.json())
+                    .then((subs) => {
+                        sub2Select.innerHTML = '<option value="">Все</option>';
+                        subs.forEach((s) => {
+                            const opt = document.createElement("option");
+                            opt.value = s;
+                            opt.textContent = s;
+                            sub2Select.appendChild(opt);
+                        });
+                    })
+                    .catch(() => {
+                        sub2Select.innerHTML = '<option value="">Все</option>';
+                    });
+            }
+        </script>
+    </body>
+</html>
+{{end}}

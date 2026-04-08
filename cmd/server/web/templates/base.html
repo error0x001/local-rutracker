@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{.Title}}</title>
+        <link rel="stylesheet" href="/static/style.css" />
+    </head>
+    <body>
+        <header>
+            <div class="container header-content">
+                <a href="/" class="logo">🔍 RuTracker Archive</a>
+                <form action="/search" method="GET" class="search-form">
+                    <input
+                        type="text"
+                        name="q"
+                        value="{{.Query}}"
+                        placeholder="Search torrents..."
+                        class="search-input"
+                        autofocus
+                    />
+                    <button type="submit" class="btn btn-primary">
+                        Search
+                    </button>
+                </form>
+            </div>
+        </header>
+        <main class="container">{{.Body}}</main>
+        <footer>
+            <div class="container">
+                <p>
+                    RuTracker Archive Search — {{.TotalCount}} torrents indexed
+                </p>
+            </div>
+        </footer>
+    </body>
+</html>
