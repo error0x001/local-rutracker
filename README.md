@@ -6,7 +6,13 @@
 
 ### 1. Подготовьте архив
 
-Положите файл `rutracker-20260329.xml.xz` в корень проекта.
+Магнет-ссылка для загрузки полной базы RuTracker:
+
+```
+magnet:?xt=urn:btih:ff805117d5e6258ba71a21bdb9a322cbe0338fa0&dn=rutracker-20260329.xml.xz&tr=http%3A%2F%2Fbt4.t-ru.org%2Fann%3Fmagnet
+```
+
+Скачанный файл `rutracker-20260329.xml.xz` положите в корень проекта.
 
 ### 2. Запустите PostgreSQL
 
@@ -133,13 +139,3 @@ make run-migrator
 ├── Makefile
 └── README.md
 ```
-
-## Скачать архив
-
-Магнет-ссылка для загрузки полной базы RuTracker:
-
-```
-magnet:?xt=urn:btih:ff805117d5e6258ba71a21bdb9a322cbe0338fa0&dn=rutracker-20260329.xml.xz&tr=http%3A%2F%2Fbt4.t-ru.org%2Fann%3Fmagnet
-```
-
-Скачанный файл `rutracker-20260329.xml.xz` положите в корень проекта.
