@@ -47,6 +47,7 @@
         <main class="container">
             <div class="torrent-detail">
                 <h1 class="torrent-title-h1">{{.TorrentTitle}}</h1>
+
                 <div class="torrent-info">
                     <div class="info-grid">
                         <div class="info-label">Категория:</div>
@@ -92,8 +93,20 @@
                                 📋 Копировать
                             </button>
                         </div>
+
+                        <div class="info-label">Webtor:</div>
+                        <div class="info-value">
+                            <a
+                                href="/webtor/{{.TorrentID}}"
+                                target="_blank"
+                                rel="noopener"
+                                class="webtor-link"
+                                >Обзор торрента</a
+                            >
+                        </div>
                     </div>
                 </div>
+
                 {{if .Content}}
                 <div class="torrent-content">
                     <h2>Описание</h2>

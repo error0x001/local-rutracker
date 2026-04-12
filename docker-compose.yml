@@ -10,6 +10,7 @@ services:
       - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./scripts/init-webtor-db.sql:/docker-entrypoint-initdb.d/init-webtor-db.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U rutracker"]
       interval: 5s
@@ -45,8 +46,33 @@ services:
       DB_PASSWORD: rutracker
       DB_NAME: rutracker
       DB_SSLMODE: disable
+      WEBTOR_PORT: 8082
     depends_on:
       - postgres
 
+  webtor:
+    image: ghcr.io/webtor-io/self-hosted:latest
+    container_name: rutracker-webtor
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+      - "6881:6881/tcp"
+      - "6881:6881/udp"
+    volumes:
+      - webtor-data:/data
+    environment:
+      - DOMAIN=http://localhost:8082
+      - USE_LOCALPG=false
+      - PG_HOST=postgres
+      - PG_PORT=5432
+      - PG_USER=rutracker
+      - PG_PASSWORD=rutracker
+      - PG_DATABASE=webtor
+      - LANG=ru
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   pgdata:
+  webtor-data:

@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -54,6 +55,7 @@ type PageData struct {
 	SubSubcats []string
 
 	// Torrent page
+	TorrentID    int64
 	TorrentTitle string
 	ForumName    string
 	Category     string
@@ -71,11 +73,12 @@ type PageData struct {
 }
 
 type Server struct {
-	searchSvc *search.Service
-	templates *template.Template
+	searchSvc  *search.Service
+	templates  *template.Template
+	webtorPort int
 }
 
-func NewServer(searchSvc *search.Service) (*Server, error) {
+func NewServer(searchSvc *search.Service, webtorPort int) (*Server, error) {
 	funcMap := template.FuncMap{
 		"formatSize": formatSize,
 		"shortHash":  shortHash,
@@ -93,6 +96,10 @@ func NewServer(searchSvc *search.Service) (*Server, error) {
 			}
 			return b
 		},
+		"js": func(s string) template.JS {
+			b, _ := json.Marshal(s)
+			return template.JS(b)
+		},
 	}
 
 	tmpl, err := template.New("").Funcs(funcMap).ParseFS(templatesFS, "web/templates/*.html")
@@ -101,8 +108,9 @@ func NewServer(searchSvc *search.Service) (*Server, error) {
 	}
 
 	return &Server{
-		searchSvc: searchSvc,
-		templates: tmpl,
+		searchSvc:  searchSvc,
+		templates:  tmpl,
+		webtorPort: webtorPort,
 	}, nil
 }
 
@@ -110,6 +118,7 @@ func (s *Server) RegisterMux(mux *http.ServeMux) {
 	mux.HandleFunc("/", s.handleHome)
 	mux.HandleFunc("/search", s.handleSearch)
 	mux.HandleFunc("/torrent/", s.handleTorrent)
+	mux.HandleFunc("/webtor/", s.handleWebtorRedirect)
 	mux.HandleFunc("/api/search", s.handleAPISearch)
 	mux.HandleFunc("/api/torrent/", s.handleAPITorrent)
 	mux.HandleFunc("/api/categories", s.handleAPICategories)
@@ -221,13 +230,17 @@ func (s *Server) handleTorrent(w http.ResponseWriter, r *http.Request) {
 		regAt = torrent.RegisteredAt.Format("2006-01-02 15:04:05")
 	}
 
+	// Extract media files from file list
+
+	// Generate magnet link with RuTracker trackers for peer discovery
 	data := PageData{
+		TorrentID:    torrent.ID,
 		TorrentTitle: torrent.Title,
 		ForumName:    torrent.ForumName,
 		Category:     torrent.Category,
 		Size:         torrent.Size,
 		RegisteredAt: regAt,
-		Hash:         torrent.Hash,
+		Hash:         strings.ToLower(torrent.Hash),
 		MagnetLink:   generateMagnetLink(torrent),
 		Content:      template.HTML(bbcode.Render(torrent.Content)),
 		HasFiles:     len(torrent.FileList) > 0,
@@ -293,6 +306,32 @@ func (s *Server) handleAPITorrent(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(torrent)
+}
+
+func (s *Server) handleWebtorRedirect(w http.ResponseWriter, r *http.Request) {
+	idStr := strings.TrimPrefix(r.URL.Path, "/webtor/")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid torrent ID", http.StatusBadRequest)
+		return
+	}
+
+	ctx := r.Context()
+	torrent, err := s.searchSvc.GetTorrent(ctx, id)
+	if err != nil {
+		http.Error(w, "Torrent not found", http.StatusNotFound)
+		return
+	}
+
+	// Build simple magnet link with trackers
+	encodedTitle := url.QueryEscape(torrent.Title)
+	magnet := fmt.Sprintf("magnet:?xt=urn:btih:%s&dn=%s&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://open.tracker.cl:1337/announce&tr=udp://open.stealth.si:80/announce&tr=udp://tracker.openbittorrent.com:6969/announce&tr=http://retracker.local/announce&tr=http://bt1.t-ru.org/ann&tr=http://bt2.t-ru.org/ann&tr=http://bt3.t-ru.org/ann&tr=http://bt4.t-ru.org/ann",
+		strings.ToLower(torrent.Hash), encodedTitle)
+
+	// Redirect to Webtor with magnet parameter
+	webtorURL := fmt.Sprintf("http://localhost:%d/show?id=%s&mode=video&magnet=%s",
+		s.webtorPort, strings.ToLower(torrent.Hash), url.QueryEscape(magnet))
+	http.Redirect(w, r, webtorURL, http.StatusFound)
 }
 
 func (s *Server) handleAPICategories(w http.ResponseWriter, r *http.Request) {
@@ -412,7 +451,7 @@ func main() {
 
 	searchSvc := search.NewService(pool)
 
-	server, err := NewServer(searchSvc)
+	server, err := NewServer(searchSvc, cfg.Server.WebtorPort)
 	if err != nil {
 		log.Fatalf("Failed to create server: %v", err)
 	}

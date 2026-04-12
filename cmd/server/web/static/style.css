@@ -327,6 +327,15 @@ header {
     margin-right: 10px;
     font-weight: 500;
 }
+.webtor-link {
+    color: var(--accent);
+    font-weight: 500;
+    text-decoration: none;
+}
+.webtor-link:hover {
+    color: #81d4fa;
+    text-decoration: underline;
+}
 
 /* ── Content ── */
 .torrent-content {

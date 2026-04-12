@@ -26,7 +26,7 @@ docker-migrate: ## Run migration in Docker (starts migrator service)
 	docker compose up migrator
 
 docker-server: ## Run server in Docker
-	docker compose up server -d
+	docker compose up server webtor -d
 
 docker-all: ## Start all services
 	docker compose up -d
