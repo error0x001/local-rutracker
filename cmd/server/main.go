@@ -75,10 +75,11 @@ type PageData struct {
 type Server struct {
 	searchSvc  *search.Service
 	templates  *template.Template
+	webtorHost string
 	webtorPort int
 }
 
-func NewServer(searchSvc *search.Service, webtorPort int) (*Server, error) {
+func NewServer(searchSvc *search.Service, webtorHost string, webtorPort int) (*Server, error) {
 	funcMap := template.FuncMap{
 		"formatSize": formatSize,
 		"shortHash":  shortHash,
@@ -110,6 +111,7 @@ func NewServer(searchSvc *search.Service, webtorPort int) (*Server, error) {
 	return &Server{
 		searchSvc:  searchSvc,
 		templates:  tmpl,
+		webtorHost: webtorHost,
 		webtorPort: webtorPort,
 	}, nil
 }
@@ -329,8 +331,8 @@ func (s *Server) handleWebtorRedirect(w http.ResponseWriter, r *http.Request) {
 		strings.ToLower(torrent.Hash), encodedTitle)
 
 	// Redirect to Webtor with magnet parameter
-	webtorURL := fmt.Sprintf("http://localhost:%d/show?id=%s&mode=video&magnet=%s",
-		s.webtorPort, strings.ToLower(torrent.Hash), url.QueryEscape(magnet))
+	webtorURL := fmt.Sprintf("http://%s:%d/show?id=%s&mode=video&magnet=%s",
+		s.webtorHost, s.webtorPort, strings.ToLower(torrent.Hash), url.QueryEscape(magnet))
 	http.Redirect(w, r, webtorURL, http.StatusFound)
 }
 
@@ -451,7 +453,7 @@ func main() {
 
 	searchSvc := search.NewService(pool)
 
-	server, err := NewServer(searchSvc, cfg.Server.WebtorPort)
+	server, err := NewServer(searchSvc, cfg.Server.WebtorHost, cfg.Server.WebtorPort)
 	if err != nil {
 		log.Fatalf("Failed to create server: %v", err)
 	}

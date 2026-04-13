@@ -33,6 +33,7 @@ type ServerConfig struct {
 	Addr         string
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
+	WebtorHost   string
 	WebtorPort   int
 }
 
@@ -56,6 +57,7 @@ func Load() *Config {
 			Addr:         getEnv("SERVER_ADDR", ":8080"),
 			ReadTimeout:  30 * time.Second,
 			WriteTimeout: 60 * time.Second,
+			WebtorHost:   getEnv("WEBTOR_HOST", "localhost"),
 			WebtorPort:   getEnvInt("WEBTOR_PORT", 8082),
 		},
 		Migrator: MigratorConfig{

@@ -149,6 +149,25 @@ make run-migrator
 | `SERVER_READ_TIMEOUT` | 15s | Таймаут чтения |
 | `SERVER_WRITE_TIMEOUT` | 30s | Таймаут записи |
 | `MIGRATOR_PROGRESS` | 10000 | Прогресс миграции каждые N записей |
+| `MIGRATOR_FILE` | | Путь к XML архиву |
+| `MIGRATOR_BATCH_SIZE` | 2000 | Размер батча при загрузке в БД |
+| `WEBTOR_HOST` | localhost | Хост Webtor сервиса |
+| `WEBTOR_PORT` | 8082 | Порт Webtor сервиса |
+
+### Webtor переменные
+
+| Переменная | Значение по умолчанию | Описание |
+|---|---|---|
+| `DOMAIN` | http://localhost:8082 | Внешний URL Webtor |
+| `USE_LOCALPG` | false | Использовать встроенную БД |
+| `PG_HOST` | postgres | Хост PostgreSQL |
+| `PG_PORT` | 5432 | Порт PostgreSQL |
+| `PG_USER` | rutracker | Пользователь БД |
+| `PG_PASSWORD` | rutracker | Пароль БД |
+| `PG_DATABASE` | webtor | Имя БД для Webtor |
+| `LANG` | ru | Язык интерфейса |
+| `CLEANER_FREE` | 30% | Сколько места освобождать при чистке кэша |
+| `CLEANER_KEEP_FREE` | 50G | Порог начала чистки кэша |
 
 ## Архитектура
 
@@ -199,6 +218,7 @@ make run-migrator
 | `postgres` | 5433 → 5432 | PostgreSQL 16 с полнотекстовым поиском |
 | `migrator` | — | CLI для загрузки XML архива в БД |
 | `server` | 8080 | Веб-сервер с поиском и просмотром |
+| `webtor` | 8082, 6881 | Self-hosted стриминг торрентов (BitTorrent P2P) |
 
 ## Технологии
 
